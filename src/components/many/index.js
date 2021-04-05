@@ -35,6 +35,7 @@ class Many extends React.Component {
       placeholder: PropTypes.string,
       action_label: PropTypes.string,
       sortable: PropTypes.bool,
+      moveable: PropTypes.bool,
       max_height: PropTypes.string
     }),
     template: PropTypes.object,
@@ -113,13 +114,24 @@ class Many extends React.Component {
     this.updateContentsKey();
   };
 
+  /**
+   * When items are moved
+   * @param {Array} the new order for the children
+   * @return {Null}
+   */
+  onMove = newOrder => {
+    const { reorderChildren } = this.props;
+    reorderChildren(newOrder);
+    this.updateContentsKey();
+  };
+
   render() {
     const { attributes, children, errors, name } = this.props;
     let hasErrors = errors.count() > 0;
     const { contentsKey } = this.state;
 
     // Extract attributes from Immutable.Map
-    let { label, action_label, placeholder } = attributes.toJS();
+    let { label, action_label, placeholder, moveable } = attributes.toJS();
     label = label || name.replace(/_/, " ");
 
     // Set up label classes
@@ -142,6 +154,8 @@ class Many extends React.Component {
             canRemove
             onRemove={this.onRemove}
             onDrop={this.onDrop}
+            canMove={moveable}
+            onMove={this.onMove}
             canSort={attributes.sortable}
             maxHeight={attributes.max_height}
             verticalControls

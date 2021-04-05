@@ -38,7 +38,12 @@ class FormItems extends React.Component {
         this.insertAtomicBlock(form);
       };
       return (
-        <button className={styles.button} key={form.name} onClick={onClick}>
+        <button
+          data-testid={"rich-text-form-button:" + form.name}
+          className={styles.button}
+          key={form.name}
+          onClick={onClick}
+        >
           {form.label || form.name}
         </button>
       );

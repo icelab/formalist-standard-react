@@ -32,6 +32,12 @@ class Sortable extends React.Component {
      * @type {Boolean}
      */
     canSort: PropTypes.bool,
+    /**
+     * canMove
+     * Indicates whether list items can be moved via arrows
+     * @type {Boolean}
+     */
+    canMove: PropTypes.bool,
     children: PropTypes.node,
     /**
      * maxHeight
@@ -53,6 +59,13 @@ class Sortable extends React.Component {
      */
     onRemove: PropTypes.func,
     /**
+     * onMove
+     * Callback. Fired when items are moved up or down.
+     * Passed the new order for the children.
+     * @type {Function}
+     */
+    onMove: PropTypes.func,
+    /**
      * onSort
      * Callback. Fired when the sort change is effected
      * @type {Function}
@@ -63,10 +76,18 @@ class Sortable extends React.Component {
      * Stack sort controls vertically
      * @type {Boolean}
      */
-    verticalControls: PropTypes.bool
+    verticalControls: PropTypes.bool,
+    /**
+     * itemDisplayMode
+     * The display mode for items.
+     * Supported values: "large".
+     * @type {String}
+     */
+     itemDisplayMode: PropTypes.string,
   };
 
   static defaultProps = {
+    canMove: false,
     canSort: true,
     verticalControls: false
   };
@@ -132,6 +153,44 @@ class Sortable extends React.Component {
     );
   };
 
+  moveItemUp = (itemIndex) => {
+    const { items } = this.state;
+
+    // If the item is already first, do nothing
+    if (itemIndex === 0) {
+      return;
+    }
+
+    const currentOrder = items.map((item, index) => {
+      return index;
+    });
+
+    const newOrder = update(currentOrder, {
+      $splice: [[itemIndex, 1], [itemIndex - 1, 0, itemIndex]]
+    })
+
+    this.props.onMove(newOrder);
+  }
+
+  moveItemDown = (itemIndex) => {
+    const { items } = this.state;
+
+    // If the item is already last, do nothing
+    if (itemIndex === (items.length - 1)) {
+      return;
+    }
+
+    const currentOrder = items.map((item, index) => {
+      return index;
+    });
+
+    const newOrder = update(currentOrder, {
+      $splice: [[itemIndex, 1], [itemIndex + 1, 0, itemIndex]]
+    })
+
+    this.props.onMove(newOrder);
+  };
+
   render() {
     const { instanceKey, items } = this.state;
     const {
@@ -139,9 +198,12 @@ class Sortable extends React.Component {
       onRemove,
       verticalControls,
       canSort,
-      maxHeight
+      canMove,
+      maxHeight,
+      itemDisplayMode
     } = this.props;
     let isSortable = !(canSort === false || items.length <= 1);
+    let isMovable = !(canMove === false || items.length <= 1);
 
     let wrapperClassNames = classNames({
       [`${styles.maxHeightWrapper}`]: maxHeight != null
@@ -159,6 +221,11 @@ class Sortable extends React.Component {
               key={`${instanceKey}_${item.originalIndex}`}
               instanceKey={instanceKey}
               moveItem={this.moveItem}
+              moveItemUp={this.moveItemUp}
+              moveItemDown={this.moveItemDown}
+              canMove={isMovable}
+              canMoveUp={isMovable && (index > 0)}
+              canMoveDown={isMovable && (index < (items.length - 1))}
               onDrop={this.onDrop}
               index={index}
               originalIndex={item.originalIndex}
@@ -166,6 +233,7 @@ class Sortable extends React.Component {
               canRemove={canRemove}
               onRemove={onRemove}
               verticalControls={verticalControls}
+              displayMode={itemDisplayMode}
             >
               {item.component}
             </Item>

@@ -11,6 +11,11 @@ export const base = css`
   padding: 0.5rem 1rem;
 `;
 
+export const large = css`
+  padding: 0.1rem 1rem;
+  margin-bottom: 1rem;
+`;
+
 export const inner = css`
   align-items: center;
   display: flex;
@@ -84,4 +89,28 @@ export const removeX = css`
   &:hover {
     color: ${colours.values.error};
   }
+`;
+
+export const move = css`
+  ${colours.primaryColor};
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding-top: 1rem;
+  transition-property: color;
+  transition-duration: 100ms;
+  position: relative;
+  &:focus {
+    outline: none;
+  }
+  &:hover,
+  &:focus {
+    color: ${colours.values.error};
+  }
+`;
+
+export const moveControl = css`
+  ${typography.fallback};
+  ${typography.large};
 `;

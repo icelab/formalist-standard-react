@@ -101,6 +101,36 @@ class Item extends React.Component {
     moveItem: PropTypes.func,
 
     /**
+     * Can this item be moved via arrows?
+     * @type {Boolean}
+     */
+    canMove: PropTypes.bool,
+
+    /**
+     * Can this item move up?
+     * @type {Boolean}
+     */
+    canMoveUp: PropTypes.bool,
+
+    /**
+     * Can this item move down?
+     * @type {Boolean}
+     */
+    canMoveDown: PropTypes.bool,
+
+    /**
+     * Callback: Fires when item is moved up
+     * @type {Function}
+     */
+    moveItemUp: PropTypes.func,
+
+    /**
+     * Callback: Fires when item is moved down
+     * @type {Function}
+     */
+    moveItemDown: PropTypes.func,
+
+    /**
      * Can this item be removed?
      * @type {Boolean}
      */
@@ -137,7 +167,14 @@ class Item extends React.Component {
      * @type {ReactElement}
      */
     children: PropTypes.node.isRequired,
-    verticalControls: PropTypes.bool
+    verticalControls: PropTypes.bool,
+
+    /**
+     * displayMode - affects margins, useful for large items like forms
+     * supported options: large
+     * @type {String}
+     */
+    displayMode: PropTypes.string
   };
 
   /**
@@ -153,6 +190,34 @@ class Item extends React.Component {
   };
 
   /**
+   * Send current `index` to the moveItemUp callback
+   * @param {Event} e Click event
+   */
+  onMoveUpClick = e => {
+    e.preventDefault();
+
+    const { canMoveUp, moveItemUp } = this.props;
+
+    if (canMoveUp && moveItemUp) {
+      moveItemUp(this.props.index);
+    }
+  };
+
+   /**
+   * Send current `index` to the moveItemDown callback
+   * @param {Event} e Click event
+   */
+  onMoveDownClick = e => {
+    e.preventDefault();
+
+    const { canMoveDown, moveItemDown } = this.props;
+
+    if (canMoveDown && moveItemDown) {
+      moveItemDown(this.props.index);
+    }
+  };
+
+  /**
    * Stop the handle click propagating
    * @param  {Event} e Click event
    */
@@ -163,17 +228,23 @@ class Item extends React.Component {
   render() {
     const {
       canSort,
+      canMove,
       canRemove,
       children,
       connectDragPreview,
       connectDragSource,
       connectDropTarget,
       isDragging,
-      verticalControls
+      verticalControls,
+      displayMode
     } = this.props;
     const inline = {
       opacity: isDragging ? 0 : 1
     };
+
+    const baseClasses = classNames(styles.base, {
+      [`${styles.large}`]: displayMode === "large"
+    });
 
     const controlsClasses = classNames(styles.controls, {
       [`${styles.controlsVertical}`]: verticalControls
@@ -181,7 +252,7 @@ class Item extends React.Component {
 
     return connectDropTarget(
       connectDragPreview(
-        <div className={styles.base} style={inline} data-name="sortable-item">
+        <div className={baseClasses} style={inline} data-name="sortable-item">
           <div className={styles.inner}>{children}</div>
           <div className={controlsClasses}>
             {canRemove ? (
@@ -206,6 +277,26 @@ class Item extends React.Component {
                   </button>
                 )
               : null}
+            {canMove ? (
+              <button
+                className={styles.move}
+                onClick={this.onMoveUpClick}
+                title="Move up"
+              >
+                <span className={styles.handleText}>Move up</span>
+                <div className={styles.moveControl}>↑</div>
+              </button>
+            ) : null}
+            {canMove ? (
+              <button
+                className={styles.move}
+                onClick={this.onMoveDownClick}
+                title="Move down"
+              >
+                <span className={styles.handleText}>Move down</span>
+                <div className={styles.moveControl}>↓</div>
+              </button>
+            ) : null}
           </div>
         </div>
       )

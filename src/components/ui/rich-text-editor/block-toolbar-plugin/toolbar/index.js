@@ -99,7 +99,7 @@ class BlockToolbar extends Component {
     // Suck out our forms into a slightly friendly format
     let embeddableFormsButtons = [];
     if (embeddableForms) {
-      embeddableFormsButtons = Object.keys(embeddableForms).map(identifier => {
+      embeddableFormsButtons = Object.keys(embeddableForms).sort().map(identifier => {
         const form = embeddableForms[identifier];
         return Object.assign({}, form, { name: identifier });
       });
@@ -112,12 +112,22 @@ class BlockToolbar extends Component {
         return item.type === currentBlockType;
       });
 
+    let popoutOffset = {
+      default: 10
+    }
+
+    // Add horizontal offset to popout when embeddable forms are present
+    if (embeddableFormsButtons.length > 0) {
+      popoutOffset.horz = 50;
+    }
+
     // TODO Asses whether to remove this binding
     /* eslint-disable react/jsx-no-bind */
     return (
       <div>
         <Popout
           placement="bottom"
+          offset={popoutOffset}
           isOpened={open}
           closeOnOutsideClick
           closeOnEsc
